@@ -1,0 +1,48 @@
+# AT&T — Provider Profile
+# Used by Hanford's call agent to navigate IVR and negotiate bills.
+
+name: AT&T
+slug: att
+category: telecom
+phone_number: "+18002882020"
+website: https://www.att.com
+
+# Regex pattern to match billing emails from AT&T
+email_sender_pattern: "att\\.com|att-mail\\.com|directv\\.com"
+
+# IVR navigation map — steps to reach a human agent
+ivr_navigation:
+  - prompt: "Welcome to AT&T"
+    key: "0"
+    note: "Skip intro"
+  - prompt: "For billing, press 1"
+    key: "1"
+  - prompt: "For account changes, press 2"
+    key: "2"
+  - prompt: "To speak with a representative"
+    key: "0"
+    note: "Repeat 0 to reach a human"
+
+# Average hold time in minutes (informational)
+avg_hold_time_minutes: 15
+
+# Negotiation tips specific to this provider
+negotiation_tips:
+  - "AT&T retention department has the most authority to offer discounts."
+  - "Mention competitor pricing (T-Mobile, Verizon) as leverage."
+  - "Ask about loyalty discounts or promotional rates for existing customers."
+  - "If they offer a bundle, politely decline and focus on the single service."
+  - "AT&T often has unadvertised retention offers — ask directly."
+
+# Services this provider typically bills for
+services:
+  - internet
+  - wireless
+  - directv
+  - home_phone
+
+# Known promotional patterns
+promotions:
+  typical_intro_rate: 45.00
+  typical_regular_rate: 75.00
+  promo_duration_months: 12

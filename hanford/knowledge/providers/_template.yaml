@@ -1,0 +1,129 @@
+# =============================================================================
+# Hanford Provider Profile Template
+# =============================================================================
+#
+# This file is the starting point for adding a new provider to Hanford's
+# knowledge base. Copy this file, rename it to your provider's slug
+# (e.g., "att.yaml", "duke_energy.yaml"), and fill in every field.
+#
+# Provider YAMLs are the primary contribution surface for the community.
+# A good provider profile helps Hanford navigate phone systems, craft
+# effective negotiation strategies, and match incoming bill emails.
+#
+# NAMING CONVENTION:
+#   Filename must match the "slug" field below.
+#   Use lowercase, underscores for spaces: "duke_energy.yaml", "blue_cross.yaml"
+#
+# =============================================================================
+
+# --- REQUIRED FIELDS ---
+
+# Display name: The human-readable name of the provider.
+# Example: "AT&T", "Duke Energy", "Blue Cross Blue Shield"
+name: "Provider Name"
+
+# Slug: A unique lowercase identifier. Must match the filename (without .yaml).
+# Used to look up the provider in the database and knowledge base.
+# Example: "att", "duke_energy", "blue_cross"
+slug: "provider_slug"
+
+# Category: The type of service this provider offers.
+# Must be one of: "telecom", "utility", "insurance", "healthcare"
+# This determines which negotiation script is used.
+category: "telecom"
+
+# Phone number: The customer service phone number for billing inquiries.
+# Include country code with + prefix. This is the number Hanford will call.
+# Example: "+18002882020"
+phone_number: "+1XXXXXXXXXX"
+
+# Website: The provider's main website (informational only).
+website: "https://www.example.com"
+
+# --- EMAIL MATCHING ---
+
+# Email sender pattern: A regex pattern to match bill notification emails.
+# Hanford uses this to detect incoming bills from this provider in Gmail.
+# Use pipe (|) to separate multiple patterns. Case-insensitive matching.
+#
+# Tips:
+#   - Include all known sending domains
+#   - Escape dots with backslash: "example\\.com"
+#   - Include subdomains or marketing domains if they send bills
+#
+# Example: "att\\.com|att-mail\\.com|directv\\.com"
+email_sender_pattern: "example\\.com"
+
+# --- IVR NAVIGATION ---
+
+# IVR (Interactive Voice Response) navigation map.
+# This tells Hanford's call agent how to navigate the phone menu to reach
+# a human representative in the billing or retention department.
+#
+# Each entry has:
+#   - prompt: What the automated system says (approximate, for context)
+#   - key: What to press (DTMF tone)
+#   - note: (optional) Additional context for the AI agent
+#
+# Tip: Call the number yourself and document the menu tree.
+# The AI uses this as a guide but can adapt if the menu changes.
+ivr_navigation:
+  - prompt: "Welcome to [Provider]"
+    key: "0"
+    note: "Skip intro / press 0 for operator"
+  - prompt: "For billing, press 1"
+    key: "1"
+  - prompt: "To speak with a representative"
+    key: "0"
+    note: "Repeat 0 if needed to bypass automation"
+
+# --- HOLD TIME ---
+
+# Average hold time in minutes. This is informational — shown to the user
+# when they're deciding whether to approve a call. Be honest.
+avg_hold_time_minutes: 15
+
+# --- NEGOTIATION ---
+
+# Negotiation tips: Provider-specific tips for the AI call agent.
+# These supplement the category-level negotiation script.
+#
+# Good tips include:
+#   - Name of the retention department (if different from "retention")
+#   - Specific competitor names that work as leverage
+#   - Known discount programs or loyalty offers
+#   - Common objections from this provider's reps
+#   - Time of day/week that typically has shorter hold times
+#
+# Be specific and factual. The community verifies these.
+negotiation_tips:
+  - "Tip about how to best negotiate with this provider."
+  - "Mention [competitor] pricing as leverage."
+  - "Ask for the retention or loyalty department by name."
+  - "Known unadvertised discounts or promotional rates."
+
+# --- SERVICES ---
+
+# List of services this provider typically bills for.
+# Used for context in negotiation and bill parsing.
+# Common values: internet, wireless, cable_tv, home_phone, mobile,
+#                electricity, gas, water, auto_insurance, home_insurance,
+#                health_insurance
+services:
+  - internet
+  - wireless
+
+# --- PROMOTIONAL PATTERNS (optional) ---
+
+# Typical promotional pricing patterns for this provider.
+# Helps the anomaly detector understand whether a rate increase
+# might be due to a promotional period expiring.
+#
+# Set to null or remove this section if not applicable.
+promotions:
+  # The typical introductory/promotional rate
+  typical_intro_rate: 49.99
+  # The typical rate after the promotion expires
+  typical_regular_rate: 79.99
+  # How long promotions typically last (months)
+  promo_duration_months: 12

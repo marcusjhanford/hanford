@@ -1,0 +1,40 @@
+# Verizon — Provider Profile
+
+name: Verizon
+slug: verizon
+category: telecom
+phone_number: "+18009221204"
+website: https://www.verizon.com
+
+email_sender_pattern: "verizon\\.com|verizonwireless\\.com|vzw\\.com"
+
+ivr_navigation:
+  - prompt: "Welcome to Verizon"
+    key: "0"
+    note: "Skip intro"
+  - prompt: "For billing and payments"
+    key: "1"
+  - prompt: "For billing questions"
+    key: "2"
+  - prompt: "To speak with a representative"
+    key: "0"
+
+avg_hold_time_minutes: 12
+
+negotiation_tips:
+  - "Verizon's loyalty department is your best bet for discounts."
+  - "Mention competitor offers (AT&T, T-Mobile) with specific pricing."
+  - "Verizon often offers autopay discounts ($5-10/mo) — ask if not already enrolled."
+  - "Military and first responder discounts are available — ask if applicable."
+  - "Verizon reps have limited discount authority — escalate to retention if needed."
+  - "Ask about any current promotional credits for existing customers."
+
+services:
+  - wireless
+  - internet_fios
+  - home_phone
+
+promotions:
+  typical_intro_rate: 49.99
+  typical_regular_rate: 79.99
+  promo_duration_months: 12

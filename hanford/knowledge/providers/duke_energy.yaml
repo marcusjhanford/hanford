@@ -1,0 +1,40 @@
+# Duke Energy — Provider Profile (Utility)
+
+name: Duke Energy
+slug: duke_energy
+category: utility
+phone_number: "+18009971000"
+website: https://www.duke-energy.com
+
+email_sender_pattern: "duke-energy\\.com|duke\\.com|dukeenergy\\.com"
+
+ivr_navigation:
+  - prompt: "Welcome to Duke Energy"
+    key: "0"
+    note: "Skip intro"
+  - prompt: "For billing and payments, press 1"
+    key: "1"
+  - prompt: "For billing questions, press 2"
+    key: "2"
+  - prompt: "To speak with a representative"
+    key: "0"
+
+avg_hold_time_minutes: 10
+
+negotiation_tips:
+  - "Duke Energy is a regulated utility — rates are set by the public utility commission."
+  - "Focus on billing accuracy, not rate negotiation."
+  - "Ask whether your bill was based on an actual or estimated meter reading."
+  - "Request a bill audit if the amount seems unusually high."
+  - "Ask about budget billing (levelized payments) to smooth seasonal spikes."
+  - "Inquire about assistance programs: LIHEAP, EnergyShare, or low-income programs."
+  - "Ask about time-of-use rate plans that might lower your cost based on usage patterns."
+
+services:
+  - electricity
+  - gas
+
+promotions:
+  typical_intro_rate: null
+  typical_regular_rate: null
+  promo_duration_months: null

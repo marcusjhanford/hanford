@@ -1,0 +1,42 @@
+# Comcast / Xfinity — Provider Profile
+
+name: Comcast Xfinity
+slug: comcast
+category: telecom
+phone_number: "+18009346489"
+website: https://www.xfinity.com
+
+email_sender_pattern: "comcast\\.com|xfinity\\.com"
+
+ivr_navigation:
+  - prompt: "Welcome to Xfinity"
+    key: "0"
+    note: "Skip intro"
+  - prompt: "For billing"
+    key: "1"
+  - prompt: "To discuss your bill"
+    key: "1"
+  - prompt: "To speak with an agent"
+    key: "0"
+    note: "Repeat 0 to bypass automated system"
+
+avg_hold_time_minutes: 20
+
+negotiation_tips:
+  - "Comcast retention department is called 'Customer Solutions' — ask for them by name."
+  - "Mention you are considering switching to a competitor (Verizon Fios, AT&T Fiber)."
+  - "Comcast frequently has promotional rates. Ask what current promotions apply."
+  - "If the first representative cannot help, ask for a supervisor."
+  - "Comcast is known for 12-month promo cycles — negotiate at each renewal."
+  - "Be prepared: Comcast reps may try to upsell bundles. Stay focused on reducing the current bill."
+
+services:
+  - internet
+  - cable_tv
+  - home_phone
+  - mobile
+
+promotions:
+  typical_intro_rate: 49.99
+  typical_regular_rate: 89.99
+  promo_duration_months: 12
