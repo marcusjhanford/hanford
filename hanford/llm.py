@@ -33,7 +33,7 @@ class LLMResponse:
 
 class LLMClient:
     """
-    Unified async LLM client. Routes to OpenAI or Anthropic based on
+    Unified async LLM client. Routes to OpenAI, Anthropic, Ollama, or vLLM based on
     the LLM_PROVIDER config value.
 
     Usage:
@@ -57,6 +57,8 @@ class LLMClient:
 
         if self._provider == "anthropic":
             self._init_anthropic()
+        elif self._provider in ("ollama", "vllm"):
+            self._init_local_llm()
         else:
             self._init_openai()
 
@@ -66,6 +68,26 @@ class LLMClient:
         self._openai_client = AsyncOpenAI(
             api_key=self._config.openai_api_key,
             base_url=self._config.openai_base_url,
+        )
+
+    def _init_local_llm(self) -> None:
+        """Initialize local LLM client (Ollama or vLLM) using OpenAI-compatible API."""
+        from openai import AsyncOpenAI
+
+        if self._provider == "ollama":
+            base_url = self._config.ollama_base_url
+            api_key = (
+                "ollama"  # Ollama doesn't require auth, but openai client needs a value
+            )
+        elif self._provider == "vllm":
+            base_url = self._config.vllm_base_url
+            api_key = self._config.vllm_api_key or "vllm"
+        else:
+            raise ValueError(f"Unknown local LLM provider: {self._provider}")
+
+        self._openai_client = AsyncOpenAI(
+            api_key=api_key,
+            base_url=base_url,
         )
 
     def _init_anthropic(self) -> None:
@@ -84,6 +106,10 @@ class LLMClient:
         """Return the configured model name for the active provider."""
         if self._provider == "anthropic":
             return self._config.anthropic_model
+        elif self._provider == "ollama":
+            return self._config.ollama_model
+        elif self._provider == "vllm":
+            return self._config.vllm_model or "local-model"
         return self._config.openai_model
 
     async def chat_completion(
@@ -108,11 +134,11 @@ class LLMClient:
         temperature: float,
         max_tokens: int,
     ) -> LLMResponse:
-        """Send a completion request via the OpenAI API."""
+        """Send a completion request via the OpenAI API (or compatible APIs like Ollama/vLLM)."""
         openai_messages = [{"role": m.role, "content": m.content} for m in messages]
 
         response = await self._openai_client.chat.completions.create(
-            model=self._config.openai_model,
+            model=self.model,
             messages=openai_messages,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -128,8 +154,8 @@ class LLMClient:
 
         return LLMResponse(
             content=content,
-            model=self._config.openai_model,
-            provider="openai",
+            model=self.model,
+            provider=self._provider,
             usage=usage,
         )
 

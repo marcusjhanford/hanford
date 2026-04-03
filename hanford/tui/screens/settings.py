@@ -98,10 +98,29 @@ class SettingsScreen(Screen):
                     yield SettingsField(
                         "OpenAI Base URL", cfg.openai_base_url, masked=False
                     )
-                else:
+                elif cfg.llm_provider == "anthropic":
                     yield SettingsField("Anthropic API Key", cfg.anthropic_api_key)
                     yield SettingsField(
                         "Anthropic Model", cfg.anthropic_model, masked=False
+                    )
+                elif cfg.llm_provider == "ollama":
+                    yield SettingsField(
+                        "Ollama Base URL", cfg.ollama_base_url, masked=False
+                    )
+                    yield SettingsField("Ollama Model", cfg.ollama_model, masked=False)
+                    yield Static(
+                        "  [dim]Running locally via Ollama.[/dim]",
+                        classes="settings-note",
+                    )
+                elif cfg.llm_provider == "vllm":
+                    yield SettingsField(
+                        "vLLM Base URL", cfg.vllm_base_url, masked=False
+                    )
+                    yield SettingsField("vLLM Model", cfg.vllm_model, masked=False)
+                    yield SettingsField("vLLM API Key", cfg.vllm_api_key)
+                    yield Static(
+                        "  [dim]Running locally via vLLM server.[/dim]",
+                        classes="settings-note",
                     )
 
             # Vapi

@@ -156,3 +156,106 @@ class TestLLMClientProviderSelection:
             config = Config(llm_provider="anthropic", anthropic_api_key="k")
             client = LLMClient(config)
             assert client._provider == "anthropic"
+
+
+class TestLLMClientLocalProviders:
+    """Tests for local LLM providers (Ollama and vLLM)."""
+
+    @pytest.fixture
+    def ollama_config(self):
+        return Config(
+            llm_provider="ollama",
+            ollama_base_url="http://localhost:11434/v1",
+            ollama_model="llama3.2",
+        )
+
+    @pytest.fixture
+    def ollama_client(self, ollama_config):
+        return LLMClient(ollama_config)
+
+    @pytest.fixture
+    def vllm_config(self):
+        return Config(
+            llm_provider="vllm",
+            vllm_base_url="http://localhost:8000/v1",
+            vllm_model="meta-llama/Llama-2-7b-chat-hf",
+            vllm_api_key="test-key",
+        )
+
+    @pytest.fixture
+    def vllm_client(self, vllm_config):
+        return LLMClient(vllm_config)
+
+    def test_ollama_provider(self, ollama_client):
+        assert ollama_client._provider == "ollama"
+        assert ollama_client._openai_client is not None
+
+    def test_ollama_model(self, ollama_client):
+        assert ollama_client.model == "llama3.2"
+
+    def test_vllm_provider(self, vllm_client):
+        assert vllm_client._provider == "vllm"
+        assert vllm_client._openai_client is not None
+
+    def test_vllm_model(self, vllm_client):
+        assert vllm_client.model == "meta-llama/Llama-2-7b-chat-hf"
+
+    def test_vllm_model_fallback(self):
+        """Test vLLM with empty model uses fallback."""
+        config = Config(llm_provider="vllm", vllm_base_url="http://localhost:8000/v1")
+        client = LLMClient(config)
+        assert client.model == "local-model"
+
+    @pytest.mark.asyncio
+    async def test_ollama_chat_completion(self, ollama_client):
+        """Test that Ollama provider calls the OpenAI-compatible API."""
+        mock_response = MagicMock()
+        mock_response.choices = [
+            MagicMock(message=MagicMock(content="Hello from Ollama!"))
+        ]
+        mock_response.usage = MagicMock(prompt_tokens=10, completion_tokens=5)
+
+        with patch.object(
+            ollama_client._openai_client.chat.completions,
+            "create",
+            new_callable=AsyncMock,
+            return_value=mock_response,
+        ):
+            result = await ollama_client.chat_completion(
+                messages=[LLMMessage(role="user", content="Hi")],
+                temperature=0.0,
+                max_tokens=100,
+            )
+
+        assert result.content == "Hello from Ollama!"
+        assert result.provider == "ollama"
+        assert result.model == "llama3.2"
+        assert result.usage["input_tokens"] == 10
+        assert result.usage["output_tokens"] == 5
+
+    @pytest.mark.asyncio
+    async def test_vllm_chat_completion(self, vllm_client):
+        """Test that vLLM provider calls the OpenAI-compatible API."""
+        mock_response = MagicMock()
+        mock_response.choices = [
+            MagicMock(message=MagicMock(content="Hello from vLLM!"))
+        ]
+        mock_response.usage = MagicMock(prompt_tokens=12, completion_tokens=8)
+
+        with patch.object(
+            vllm_client._openai_client.chat.completions,
+            "create",
+            new_callable=AsyncMock,
+            return_value=mock_response,
+        ):
+            result = await vllm_client.chat_completion(
+                messages=[LLMMessage(role="user", content="Hi")],
+                temperature=0.5,
+                max_tokens=200,
+            )
+
+        assert result.content == "Hello from vLLM!"
+        assert result.provider == "vllm"
+        assert result.model == "meta-llama/Llama-2-7b-chat-hf"
+        assert result.usage["input_tokens"] == 12
+        assert result.usage["output_tokens"] == 8

@@ -31,7 +31,7 @@ class Config:
     # --- LLM ---
     llm_provider: str = field(
         default_factory=lambda: os.getenv("LLM_PROVIDER", "openai").lower()
-    )  # "openai" or "anthropic"
+    )  # "openai", "anthropic", "ollama", or "vllm"
 
     # OpenAI
     openai_api_key: str = field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
@@ -51,6 +51,23 @@ class Config:
     anthropic_model: str = field(
         default_factory=lambda: os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
     )
+
+    # Ollama (Local LLM)
+    ollama_base_url: str = field(
+        default_factory=lambda: os.getenv(
+            "OLLAMA_BASE_URL", "http://localhost:11434/v1"
+        )
+    )
+    ollama_model: str = field(
+        default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3.2")
+    )
+
+    # vLLM (Local LLM Server)
+    vllm_base_url: str = field(
+        default_factory=lambda: os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1")
+    )
+    vllm_model: str = field(default_factory=lambda: os.getenv("VLLM_MODEL", ""))
+    vllm_api_key: str = field(default_factory=lambda: os.getenv("VLLM_API_KEY", ""))
 
     # --- Vapi ---
     vapi_api_key: str = field(default_factory=lambda: os.getenv("VAPI_API_KEY", ""))

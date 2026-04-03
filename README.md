@@ -33,8 +33,12 @@ Hanford watches your Gmail for bills, detects when you're being overcharged, and
 ### Prerequisites
 
 - Python 3.11+
-- An OpenAI API key
-- A Vapi.ai account with a provisioned phone number
+- **LLM Provider**: One of:
+  - OpenAI API key (cloud)
+  - Anthropic API key (cloud)  
+  - **Ollama** (local, free)
+  - **vLLM** (local server, free)
+- A Vapi.ai account with a provisioned phone number (for AI phone calls)
 - Gmail API credentials (Google Cloud project with Gmail API enabled)
 
 ### Installation
@@ -48,17 +52,30 @@ cp .env.example .env
 
 ### Configuration
 
-Edit `.env` with your API keys. At minimum you need a Vapi key and one LLM provider:
+Edit `.env` with your API keys. You can use cloud providers (OpenAI/Anthropic) or run completely local with Ollama or vLLM:
 
 ```env
-# Pick one LLM provider:
-LLM_PROVIDER=openai   # or "anthropic"
+# Pick your LLM provider (openai, anthropic, ollama, or vllm):
+LLM_PROVIDER=openai
 
+# --- Cloud Providers ---
 # If using OpenAI:
 OPENAI_API_KEY=sk-...
 
 # If using Anthropic (Claude):
 ANTHROPIC_API_KEY=sk-ant-...
+
+# --- Local LLM (Privacy-First, Free) ---
+# If using Ollama (recommended for beginners):
+# LLM_PROVIDER=ollama
+# OLLAMA_MODEL=llama3.2  # or any model you've pulled
+# OLLAMA_BASE_URL=http://localhost:11434/v1
+
+# If using vLLM (for advanced users with GPU):
+# LLM_PROVIDER=vllm
+# VLLM_MODEL=meta-llama/Llama-2-7b-chat-hf
+# VLLM_BASE_URL=http://localhost:8000/v1
+# VLLM_API_KEY=optional-api-key
 
 # Required for phone calls:
 VAPI_API_KEY=your-vapi-key
@@ -66,7 +83,11 @@ VAPI_PHONE_NUMBER_ID=your-phone-number-id
 USER_NAME=Your Full Name
 ```
 
-Hanford supports both OpenAI and Anthropic (Claude) as the LLM backend. Set `LLM_PROVIDER` to choose which one. Both are used for bill parsing, intent classification, directive parsing, and status generation. The Vapi phone call assistant is separate and always uses OpenAI via Vapi's infrastructure.
+Hanford supports multiple LLM backends. Choose based on your privacy needs and hardware:
+- **Cloud (OpenAI/Anthropic)**: Easiest setup, best performance, requires API keys
+- **Local (Ollama/vLLM)**: Complete privacy, no API costs, requires local hardware
+
+The Vapi phone call assistant is separate and always uses OpenAI via Vapi's infrastructure.
 
 ### Gmail Setup
 
@@ -77,6 +98,64 @@ Hanford supports both OpenAI and Anthropic (Claude) as the LLM backend. Set `LLM
 5. Save it to `~/.hanford/credentials.json`
 
 On first run, Hanford opens a browser window for OAuth authorization. The token is saved to `~/.hanford/gmail_token.json` for subsequent runs.
+
+### Local LLM Setup (Optional but Recommended)
+
+Want to run Hanford **completely offline** without sending your data to cloud providers? Use a local LLM via Ollama or vLLM.
+
+#### Option 1: Ollama (Easiest)
+
+1. Install Ollama: https://ollama.com/download
+2. Pull a model:
+   ```bash
+   ollama pull llama3.2
+   ```
+3. Update your `.env`:
+   ```env
+   LLM_PROVIDER=ollama
+   OLLAMA_MODEL=llama3.2
+   OLLAMA_BASE_URL=http://localhost:11434/v1
+   ```
+4. Ensure Ollama is running:
+   ```bash
+   ollama serve
+   ```
+5. Start Hanford. All LLM requests now run locally.
+
+**Requirements:** 8GB+ RAM recommended for smaller models (3B-8B parameters). No GPU required.
+
+#### Option 2: vLLM (Advanced, GPU Recommended)
+
+For users with GPU hardware wanting maximum performance:
+
+1. Install vLLM:
+   ```bash
+   pip install vllm
+   ```
+2. Start the vLLM server:
+   ```bash
+   python -m vllm.entrypoints.openai.api_server \
+     --model meta-llama/Llama-2-7b-chat-hf \
+     --port 8000
+   ```
+3. Update your `.env`:
+   ```env
+   LLM_PROVIDER=vllm
+   VLLM_MODEL=meta-llama/Llama-2-7b-chat-hf
+   VLLM_BASE_URL=http://localhost:8000/v1
+   ```
+4. Start Hanford. All LLM requests route to your local vLLM server.
+
+**Requirements:** GPU with 16GB+ VRAM recommended. See [vLLM docs](https://docs.vllm.ai) for more options.
+
+#### Why Go Local?
+
+- **Privacy**: Your bills and financial data never leave your machine
+- **Cost**: Zero API costs for LLM usage
+- **Control**: You own the model weights and runtime
+- **Offline**: Works without internet (except for Gmail/Vapi calls)
+
+Trade-offs: Local models may be slower and less capable than GPT-4o or Claude on complex reasoning tasks. For most bill parsing and intent classification, modern local models (Llama 3, Qwen 2.5, etc.) work great.
 
 ### Running
 
@@ -100,7 +179,7 @@ Hanford uses paid external APIs. Here's what each costs:
 - You are billed directly by Vapi. Hanford does not mark up or intermediate.
 - Calls are only placed with your explicit approval.
 
-### LLM (OpenAI or Anthropic)
+### LLM (OpenAI, Anthropic, or Local)
 
 Hanford uses an LLM for bill parsing, intent classification, directive parsing, and status summaries. You choose the provider.
 
@@ -114,6 +193,11 @@ Hanford uses an LLM for bill parsing, intent classification, directive parsing, 
 - Cost: ~$3 per million input tokens, ~$15 per million output tokens
 - Monthly cost for typical use: **< $2/month** (higher per-token cost but very low volume)
 
+**Ollama / vLLM (Local):**
+- Cost: **$0/month**
+- Hardware: Uses your local machine's CPU/GPU
+- Privacy: Complete data privacy - nothing leaves your machine
+
 ### Telegram / WhatsApp
 
 - **Telegram:** Free (bot API has no cost)
@@ -122,12 +206,20 @@ Hanford uses an LLM for bill parsing, intent classification, directive parsing, 
 ### Total Estimated Monthly Cost
 
 For a typical user monitoring 5-10 providers with 1-2 negotiation calls per month:
+
+**With Cloud LLM (OpenAI/Anthropic):**
 - Vapi phone number: $2
 - Vapi call time: $2-8
 - OpenAI: < $1
 - **Total: $5-11/month**
 
-All API keys are user-supplied and stored locally. Hanford never phones home.
+**With Local LLM (Ollama/vLLM):**
+- Vapi phone number: $2
+- Vapi call time: $2-8
+- Local LLM: $0
+- **Total: $4-10/month** (only phone call costs!)
+
+All API keys are user-supplied and stored locally. Hanford never phones home. With a local LLM, your data never leaves your machine.
 
 ---
 
@@ -231,6 +323,12 @@ Negotiation scripts live in `hanford/knowledge/scripts/` as Markdown files. They
 - No secrets or personal data in committed files
 - Follow existing code style (async throughout, type hints, docstrings)
 - Test coverage for new modules is expected
+
+---
+
+## Authors
+
+- **Mohammed Hayat** - Code owner and maintainer ([mohammedjhayat@gmail.com](mailto:mohammedjhayat@gmail.com))
 
 ---
 
