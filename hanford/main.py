@@ -6,6 +6,7 @@ import asyncio
 import logging
 import signal
 import sys
+from pathlib import Path
 
 from hanford.channels.channel_manager import ChannelManager
 from hanford.channels.telegram_channel import TelegramChannel
@@ -16,12 +17,15 @@ from hanford.database import close_db, init_db
 from hanford.orchestrator import Orchestrator
 from hanford.tui.app import HanfordApp
 
+# Ensure ~/.hanford directory exists before setting up logging
+Path.home().joinpath(".hanford").mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     handlers=[
         logging.FileHandler(
-            str(__import__("pathlib").Path.home() / ".hanford" / "hanford.log"),
+            str(Path.home() / ".hanford" / "hanford.log"),
             mode="a",
         ),
     ],

@@ -43,7 +43,7 @@ class TUIChannel(BaseChannel):
         """Activate the TUI channel."""
         self._active = True
         self._inactive_message_shown = False
-        if self._app:
+        if self._app and self._app._running:
             # If switching back to TUI, re-activate the dashboard
             self._app.call_from_thread(self._app.reactivate_dashboard)
         logger.info("TUI channel started.")
