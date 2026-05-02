@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-violet.png)](https://www.buymeacoffee.com/mjhd)
+<a href="https://www.buymeacoffee.com/mjhd"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy me a coffee" width="108" height="30"></a>
 
 </div>
 
